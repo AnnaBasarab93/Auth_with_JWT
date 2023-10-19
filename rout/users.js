@@ -10,6 +10,23 @@ const generateToken = (data) => {
     return jwt.sign(data, secret, {expiresIn: '1800s'});
     }
 
+//Middleware Authorization Function
+
+const middlewareAuthorizationFunction = (req, res, next) => {
+    const token = req.headers.authorization;
+    
+    if(!token){
+        return res.sendStatus(401)
+    }
+    jwt.verify(token, secret, (err, user) => {
+        if(err){
+            return res.sendStatus(401)
+        }
+        req.user = user;
+        next();
+    })
+}
+
 /*
 //TO GET/login without  NoSQL
 userRouter.get ('/login', (req, res) => {
@@ -134,7 +151,7 @@ try{
 
 //Log in User
 
-userRouter.post('/connect', async (req, res) => {
+userRouter.post('/connect', middlewareAuthorizationFunction, async (req, res) => {
     const {username, password} = req.body;
     try{
         const user = await User.findOne({username});
