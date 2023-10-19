@@ -13,7 +13,7 @@ const generateToken = (data) => {
 //Middleware Authorization Function
 
 const middlewareAuthorizationFunction = (req, res, next) => {
-    const token = req.headers.authorization;
+    const {token} = req.body;
     
     if(!token){
         return res.sendStatus(401)
@@ -24,13 +24,12 @@ const middlewareAuthorizationFunction = (req, res, next) => {
         }
         req.user = user;
         next();
-    })
+    });
 }
 
 /*
 //TO GET/login without  NoSQL
 userRouter.get ('/login', (req, res) => {
-try{
     res.send (`<form action="/api/jwt/connect" method="post">
     <label>Login username:</label>
     <input type="text" placeholder="Enter Username" name="username" required>
@@ -42,15 +41,11 @@ try{
     </br>
     <input type='submit' value='Submit'>
     </form>`)
-}catch(err){
-    res.status(500).json(err)
-}
-});
+})
 
 //POST /connect: without  NoSQL
 userRouter.post('/connect', (req, res)=>{
     const {username, password} = req.body;
-try{
 if(username === 'John' && password === 'doe'){
     const generateToken = (data) => {
         return jwt.sign(data, secret, {expiresIn: '1800s'});
@@ -71,35 +66,21 @@ if(username === 'John' && password === 'doe'){
 }else{
         res.redirect('/api/jwt/login')
     }
-}catch(err){
-        res.status(500).json(err)
-}
 })
 
 //POST /checkJWT: without  NoSQL
 userRouter.post ('/checkJWT', (req, res) => { 
-try{
     const {token} = req.body;
         jwt.verify(token, secret, (err, decoded) => {
-if(err) {
+if(err){
         res.redirect('/api/jwt/login');
-        } 
+    } 
         console.log(decoded)
         res.redirect('/api/jwt/admin');
-        
-    } )
-}catch{
-    res.status(500).json(err);
-}
 })
 
-userRouter.get('/admin', (req, res) => { 
-try{
+userRouter.get('/admin', (req, res) => {
     res.send (`<h2>You are verified successfully </h2>`);
-
-}catch(err){
-    res.status(500).json(err)
-}
 });
 */
 
@@ -151,7 +132,7 @@ try{
 
 //Log in User
 
-userRouter.post('/connect', middlewareAuthorizationFunction, async (req, res) => {
+userRouter.post('/connect', async (req, res) => {
     const {username, password} = req.body;
     try{
         const user = await User.findOne({username});
@@ -182,7 +163,7 @@ userRouter.post('/connect', middlewareAuthorizationFunction, async (req, res) =>
 })
 
 //Verify Token
-userRouter.post ('/checkJWT', (req, res) => { 
+userRouter.post ('/checkJWT', (req, res, next) => { 
     try{
         const {token} = req.body;
             jwt.verify(token, secret, (err, decoded) => {
@@ -193,7 +174,7 @@ userRouter.post ('/checkJWT', (req, res) => {
             res.redirect('/api/jwt/admin');
         })
     }catch{
-        res.status(500).json(err);
+        next();
     }
     })
     
