@@ -1,6 +1,6 @@
 import express from 'express';
 const userRouter = express.Router();
-import jwt, { decode } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 
 const secret = process.env.SECRET_TOKEN;
@@ -61,6 +61,7 @@ try{
 if(err) {
         res.redirect('/api/jwt/login');
         } 
+        console.log(decoded)
         res.redirect('/api/jwt/admin');
         
     } )
